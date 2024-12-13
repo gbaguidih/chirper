@@ -112,7 +112,17 @@ class ChirpTest extends TestCase
         $response->assertSessionHasErrors(['message']);
     }
     
-    
+    public function test_un_utilisateur_à_un_maximum_de_10_chirps(){
+        $utilisateur = User::factory()->create();
+        $this->actingAs($utilisateur);
+        for($i=0; $i<10; $i++){
+            Chirp::factory()->create(['user_id' => $utilisateur->id]);
+        }
+        $response = $this->post('/chirps', ['message' => '']);
+        $response->assertStatus(302);
+        $this->assertCount(10, Chirp::where('user_id', $utilisateur->id)->get());
+
+    }
 
 
 
