@@ -69,5 +69,22 @@ class ChirpTest extends TestCase
         'message' => 'Chirp modifié',
         ]);
     }
- 
+    public function test_un_utilisateur_peut_supprimer_son_chirp(){
+        $utilisateur = User::factory()->create();
+        $chirp = Chirp::factory()->create(['user_id' => $utilisateur->id]);
+        $this->actingAs($utilisateur);
+        
+        $response = $this->delete("/chirps/{$chirp->id}");
+        $response->assertStatus(302);
+        $this->assertDatabaseMissing('chirps', [
+            'id' => $chirp->id,
+        ]);
+    }
+
+    
+    
+    
+
+
+
 }
