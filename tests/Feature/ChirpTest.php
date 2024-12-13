@@ -13,8 +13,7 @@ class ChirpTest extends TestCase
     /**
      * A basic feature test example.
      */
-    public function test_un_utilisateur_peut_creer_un_chirp(): void
-    {
+    public function test_un_utilisateur_peut_creer_un_chirp(): void {
         $utilisateur = User::factory()->create();
         $this->actingAs($utilisateur);
 
@@ -92,7 +91,26 @@ class ChirpTest extends TestCase
 
         $this ->actingAs($utilisateur2);
     }
-    
+    public function test_un_chirp_ne_peut_pas_avoir_un_contenu_vide_apres_modification():void {
+        $utilisateur = User::factory()->create();
+        $chirp = Chirp::factory()->create(['user_id' => $utilisateur->id, 
+        'message' => 'Hello']);
+        $this->actingAs($utilisateur);
+        $response = $this->patch("/chirps/{$chirp->id}", [
+            'message' =>''
+        ]);
+        $response->assertSessionHasErrors(['message']);
+    }
+    public function test_un_chirp_ne_peut_pas_depasse_255_caracteres_apres_modification(){
+        $utilisateur = User::factory()->create();
+        $chirp = Chirp::factory()->create(['user_id' => $utilisateur->id, 
+        'message' => 'Hello comment tu vas?']);
+        $this->actingAs($utilisateur);
+        $response = $this->patch("/chirps/{$chirp->id}", [
+        'message' => str_repeat('a', 256)
+        ]);
+        $response->assertSessionHasErrors(['message']);
+    }
     
     
 
