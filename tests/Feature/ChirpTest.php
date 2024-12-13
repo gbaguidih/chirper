@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Chirp;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -14,24 +15,21 @@ class ChirpTest extends TestCase
      */
     public function test_un_utilisateur_peut_creer_un_chirp(): void
     {
-        // Simulez un utilisateur connecté avec actingAs
         $utilisateur = User::factory()->create();
         $this->actingAs($utilisateur);
 
-        //Effectuez une requête POST à la route /chirps avec un contenu.
         $response = $this->post('/chirps',['message'=> 'Le premier chirp de Hillary !']);
         $response = $this->post('/chirps',['message'=> 'Le deuxieme chirp de Hillary !']);
 
-        //Vérifiez que le "chirp" est enregistré en base de données.
         $response->assertStatus(302);
         $this->assertDatabaseHas('chirps', [
             'message' => 'Le premier chirp de Hillary !',
             'user_id' => $utilisateur->id,
-            ]);
-            $this->assertDatabaseHas('chirps', [
-                'message' => 'Le deuxieme chirp de Hillary !',
-                'user_id' => $utilisateur->id,
-                ]);
+        ]);
+        $this->assertDatabaseHas('chirps', [
+            'message' => 'Le deuxieme chirp de Hillary !',
+            'user_id' => $utilisateur->id
+        ]);
     }
 
     public function test_un_chirp_ne_peut_pas_avoir_un_contenu_vide():void {
@@ -51,4 +49,25 @@ class ChirpTest extends TestCase
         ]);
         $response->assertSessionHasErrors(['message']);
     }
+    // public function test_les_chirps_sont_affiches_sur_la_page_d_accueil(){
+    //     $chirps = Chirp::factory()->count(5)->create();
+    //     $response = $this -> get('/chirps');
+    //     foreach($chirps as $chirp ) {
+    //         $response ->assertSee( $chirp->contenu);
+    //     }
+    // }
+    public function test_un_utilisateur_peut_modifier_son_chirp(){
+        $utilisateur = User::factory()->create();
+        $chirp = Chirp::factory()->create(['user_id' => $utilisateur->id]);
+        $this->actingAs($utilisateur);
+        $response = $this->put("/chirps/{$chirp->id}", [
+        'message' => 'Chirp modifié'
+        ]);
+        $response->assertStatus(302);
+        $this->assertDatabaseHas('chirps', [
+        'id' => $chirp->id,
+        'message' => 'Chirp modifié',
+        ]);
+    }
+ 
 }
