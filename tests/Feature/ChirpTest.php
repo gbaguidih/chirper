@@ -48,13 +48,13 @@ class ChirpTest extends TestCase
         ]);
         $response->assertSessionHasErrors(['message']);
     }
-    // public function test_les_chirps_sont_affiches_sur_la_page_d_accueil(){
-    //     $chirps = Chirp::factory()->count(5)->create();
-    //     $response = $this -> get('/chirps');
-    //     foreach($chirps as $chirp ) {
-    //         $response ->assertSee( $chirp->contenu);
-    //     }
-    // }
+    public function test_les_chirps_sont_affiches_sur_la_page_d_accueil(){
+        $chirps = Chirp::factory()->count(5)->create();
+        $response = $this -> get('/chirps');
+        foreach($chirps as $chirp ) {
+            $response ->assertSee( $chirp->contenu);
+        }
+    }
     public function test_un_utilisateur_peut_modifier_son_chirp(){
         $utilisateur = User::factory()->create();
         $chirp = Chirp::factory()->create(['user_id' => $utilisateur->id]);
@@ -123,7 +123,6 @@ class ChirpTest extends TestCase
         $this->assertCount(10, Chirp::where('user_id', $utilisateur->id)->get());
 
     }
-
 
 
 }
