@@ -10,9 +10,7 @@ use Tests\TestCase;
 
 class ChirpTest extends TestCase
 {
-    /**
-     * A basic feature test example.
-     */
+    //  Exercice 1 
     public function test_un_utilisateur_peut_creer_un_chirp(): void {
         $utilisateur = User::factory()->create();
         $this->actingAs($utilisateur);
@@ -31,6 +29,8 @@ class ChirpTest extends TestCase
         ]);
     }
 
+    
+    //  Exercice 2 
     public function test_un_chirp_ne_peut_pas_avoir_un_contenu_vide():void {
         $utilisateur = User::factory()->create();
         $this->actingAs($utilisateur);
@@ -48,6 +48,9 @@ class ChirpTest extends TestCase
         ]);
         $response->assertSessionHasErrors(['message']);
     }
+
+    
+    //  Exercice 3
     public function test_les_chirps_sont_affiches_sur_la_page_d_accueil(){
         $chirps = Chirp::factory()->count(5)->create();
         $response = $this -> get('/chirps');
@@ -55,6 +58,8 @@ class ChirpTest extends TestCase
             $response ->assertSee( $chirp->contenu);
         }
     }
+
+    //  Exercice 4
     public function test_un_utilisateur_peut_modifier_son_chirp(){
         $utilisateur = User::factory()->create();
         $chirp = Chirp::factory()->create(['user_id' => $utilisateur->id]);
@@ -68,6 +73,9 @@ class ChirpTest extends TestCase
         'message' => 'Chirp modifié',
         ]);
     }
+
+    
+    //  Exercice 5
     public function test_un_utilisateur_peut_supprimer_son_chirp(){
         $utilisateur = User::factory()->create();
         $chirp = Chirp::factory()->create(['user_id' => $utilisateur->id]);
@@ -79,6 +87,9 @@ class ChirpTest extends TestCase
             'id' => $chirp->id,
         ]);
     }
+
+    
+    //  Exercice 6
     public function test_un_utilisateur_ne_peut_pas_modifier_ou_supprimer_le_chirp_d_un_autre_utilisateur(){
         $utilisateur1 = User::factory()->create();
         $utilisateur2 = User::factory()->create();
@@ -91,6 +102,8 @@ class ChirpTest extends TestCase
 
         $this ->actingAs($utilisateur2);
     }
+
+        //  Exercice 7
     public function test_un_chirp_ne_peut_pas_avoir_un_contenu_vide_apres_modification():void {
         $utilisateur = User::factory()->create();
         $chirp = Chirp::factory()->create(['user_id' => $utilisateur->id, 
@@ -112,6 +125,8 @@ class ChirpTest extends TestCase
         $response->assertSessionHasErrors(['message']);
     }
     
+
+    //  Exercice 8
     public function test_un_utilisateur_à_un_maximum_de_10_chirps(){
         $utilisateur = User::factory()->create();
         $this->actingAs($utilisateur);
@@ -124,5 +139,19 @@ class ChirpTest extends TestCase
 
     }
 
+    
+    //  Exercice 9
+    public function test_afficher_uniquement_les_chirps_créés_dans_les_7_derniers_jours(){
+        $utilisateur = User::factory()->create();
+        $this->actingAs($utilisateur);
+        Chirp::factory()->create(['user_id' => $utilisateur->id , 'created_at' => now()]);
+        Chirp::factory()->create(['user_id' => $utilisateur->id , 'created_at' => now()->subDays(8)]);
 
+        $response = $this->get('/');
+
+        // $response -> assertSee(now()->format('d M Y'));
+        $response -> assertDontSee(now()->subDays(8)->format('d M Y'));
+
+
+    }
 }
